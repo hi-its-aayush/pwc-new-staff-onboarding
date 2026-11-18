@@ -32,3 +32,18 @@ button.p{background:var(--acc);border-color:var(--acc);color:#fff}button:disable
 .cert{text-align:center;border:3px double var(--acc);padding:48px 24px;background:var(--card);border-radius:8px}.cert h1{font-size:40px}
 @media(max-width:800px){.app{grid-template-columns:1fr}aside{position:static;height:auto;max-height:50vh}main{padding-top:28px}}
 @media print{aside,.row,.noprint{display:none}.app{display:block}body{background:#fff;color:#000}.cert{border-color:#000}}
+
+/* Gastronomy theme: black and yellow, serif headings */
+:root{--y:#f5dd3f;--bg:#f6f5f1;--ink:#111;--mut:#5a564f;--acc:#7d6200;--line:#ddd9d0}
+h1,h2,h3,.logo{font-family:Georgia,"Times New Roman",serif}h1{font-weight:400}
+aside{background:#000;color:#fff;border-right:0}.logo{font-size:34px;line-height:1;color:#fff}.logo span{color:var(--y)}
+aside .brand,aside .pl,aside .grp{color:#b8b5ae}.bar{background:#333}.bar i{background:var(--y)}
+aside input[type=search]{background:#111;border-color:#333;color:#fff}
+nav a{color:#fff}nav a:hover{background:#1c1c1c}nav a.on{background:var(--y);color:#000}nav a b{border-color:var(--y)}nav a.done b{background:var(--y);border-color:var(--y)}
+button.p,.btn.go{background:#111;border-color:#111;color:var(--y)}.btn.go{display:inline-block;margin-top:8px;font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}.grid .card{margin:0}.card h3{margin:0 0 6px;font-size:19px;font-weight:500}.card p{margin:4px 0}
+.person .av{display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:#000;color:var(--y);font-family:Georgia,serif;margin-bottom:10px}.role{color:var(--acc);font-weight:600}
+.steps li{padding:6px 0}.cert{border-color:#000}.cert .logo{color:#000;font-size:30px;margin-bottom:12px}
+.tick{margin-right:8px;width:18px;height:18px;accent-color:#111;vertical-align:middle}.ticked{opacity:.55}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121212;--card:#1c1c1c;--ink:#f2f0ea;--mut:#aaa69d;--acc:var(--y);--line:#333}:root:not([data-theme="light"]) button.p,:root:not([data-theme="light"]) .btn.go{background:var(--y);border-color:var(--y);color:#000}:root:not([data-theme="light"]) .cert .logo{color:#fff}}
+@media print{.cert .logo{color:#000}}
