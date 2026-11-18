@@ -252,6 +252,32 @@ document.addEventListener("keydown", e => {
   if (e.key === "ArrowRight") $("#s-next")?.click();
 });
 
+function setTheme(t) {
+  document.documentElement.dataset.theme = t;
+  const icon = t === "dark" ? "☀️" : "🌙";
+  const label = t === "dark" ? "Switch to light mode" : "Switch to dark mode";
+  [$("#theme-btn"), $("#theme-btn2")].forEach(b => {
+    if (!b) return;
+    b.textContent = icon;
+    b.title = label;
+    b.setAttribute("aria-label", label);
+  });
+  try { localStorage.setItem("ob-theme", t); } catch (e) {}
+}
+
+const initTheme = (() => {
+  try {
+    const s = localStorage.getItem("ob-theme");
+    if (s === "dark" || s === "light") return s;
+  } catch (e) {}
+  return matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+})();
+setTheme(initTheme);
+
+[$("#theme-btn"), $("#theme-btn2")].forEach(b => {
+  if (b) b.onclick = () => setTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+});
+
 $("#s").oninput = nav;
 $("#menu").onclick = () => document.body.classList.toggle("open");
 $("#scrim").onclick = () => document.body.classList.remove("open");

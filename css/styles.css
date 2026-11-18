@@ -46,6 +46,9 @@ button.p,.btn.go{background:#111;border-color:#111;color:var(--y)}.btn.go{displa
 .steps li{padding:6px 0}.cert{border-color:#000}.cert .logo{color:#000;font-size:30px;margin-bottom:12px}
 .tick{margin-right:8px;width:18px;height:18px;accent-color:#111;vertical-align:middle}.ticked{opacity:.55}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121212;--card:#1c1c1c;--ink:#f2f0ea;--mut:#aaa69d;--acc:var(--y);--line:#333}:root:not([data-theme="light"]) button.p,:root:not([data-theme="light"]) .btn.go{background:var(--y);border-color:var(--y);color:#000}:root:not([data-theme="light"]) .cert .logo{color:#fff}}
+:root[data-theme="dark"]{--bg:#121212;--card:#1c1c1c;--ink:#f2f0ea;--mut:#aaa69d;--acc:var(--y);--line:#333}
+:root[data-theme="dark"] button.p,:root[data-theme="dark"] .btn.go{background:var(--y);border-color:var(--y);color:#000}
+:root[data-theme="dark"] .cert .logo{color:#fff}
 @media print{.cert .logo{color:#000}}
 
 /* Mobile: top bar + slide-out menu */
@@ -84,3 +87,9 @@ main{padding:24px 16px 80px}.lead{font-size:17px}.grid{grid-template-columns:1fr
 .slide-img{max-width:100%;height:auto;border-radius:10px;margin:8px 0 12px;display:block}
 .slide-note{margin-top:16px;padding:10px 14px;border-left:3px solid var(--acc);background:var(--bg);border-radius:0 8px 8px 0;font-size:14px;color:var(--mut)}
 .deck-nav{display:flex;justify-content:space-between;gap:12px;margin-top:20px;padding-top:14px;border-top:1px solid var(--line)}
+
+/* Theme toggle button */
+.side-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.theme-btn{padding:6px 10px;border-radius:10px;border:1px solid #333;background:#141414;color:#fff;font-size:16px;line-height:1;cursor:pointer;flex:none}
+.theme-btn:hover{border-color:var(--y)}
+.top .theme-btn{padding:6px 8px;font-size:18px}
