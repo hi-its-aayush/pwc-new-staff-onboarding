@@ -1,18 +1,56 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Welcome to the team · Gastronomy at PwC</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E☕%3C/text%3E%3C/svg%3E">
-<link rel="stylesheet" href="css/styles.css">
-</head><body>
-<header class="top"><button id="menu" aria-label="Open menu">☰</button><div class="logo"><span>g</span>astronomy</div><b id="pct2">0%</b><button type="button" id="theme-btn2" class="theme-btn" aria-label="Toggle dark or light mode">🌙</button></header><div class="tbar"><i id="fill2"></i></div><div id="scrim"></div>
-<div class="app"><aside>
-<div class="side-head"><div class="logo"><span>g</span>astronomy</div><button type="button" id="theme-btn" class="theme-btn" aria-label="Toggle dark or light mode">🌙</button></div><div class="brand">we live to create · PwC Sydney</div>
-<div class="tabs" role="tablist"><button type="button" id="tab-ob" class="tab on">Get Started</button><button type="button" id="tab-tr" class="tab">Training</button></div>
-<div class="bar"><i id="fill"></i></div><div class="pl"><span id="plabel">Day 1 readiness</span><span id="pct">0%</span></div>
-<input type="search" id="s" placeholder="Find a topic or term">
-<nav id="nav"></nav></aside><main id="main"></main></div>
-<script src="js/modules.js"></script>
-<script src="js/training.js"></script>
-<script src="js/app.js"></script>
-</body></html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Welcome to the team · Gastronomy at PwC</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E☕%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="topbar noprint">
+    <div class="tb-in">
+      <a class="logo" href="#welcome"><span>g</span>astronomy</a>
+      <nav class="top-nav" id="top-nav" aria-label="Primary">
+        <a href="#welcome" data-tab="home">Home</a>
+        <a href="#day1" data-tab="day1">Day 1 <span class="pill" id="p-day1">0%</span></a>
+        <a href="#library" data-tab="library">Library</a>
+        <a href="#training" data-tab="training">Training <span class="pill" id="p-tr">0%</span></a>
+      </nav>
+      <div class="tb-right">
+        <div class="search-wrap">
+          <input type="search" id="s" placeholder="Search topics…" aria-label="Search topics">
+          <div class="search-pop" id="s-pop" hidden></div>
+        </div>
+        <button type="button" id="theme-btn" class="icon-btn" aria-label="Toggle dark or light mode">🌙</button>
+        <button type="button" id="menu" class="icon-btn mobile-only" aria-label="Open menu">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <div id="scrim"></div>
+  <div class="mobile-drawer noprint" id="drawer">
+    <nav class="drawer-nav">
+      <a href="#welcome" data-tab="home">Home</a>
+      <a href="#day1" data-tab="day1">Day 1 Onboarding</a>
+      <a href="#library" data-tab="library">Reference Library</a>
+      <a href="#training" data-tab="training">Training &amp; Upskilling</a>
+    </nav>
+    <div id="drawer-rail"></div>
+  </div>
+
+  <div class="shell" id="shell">
+    <aside class="rail noprint" id="rail" hidden></aside>
+    <main id="main"></main>
+  </div>
+
+  <div id="lightbox" class="lb" hidden>
+    <button type="button" id="lb-close" class="lb-close" aria-label="Close image">✕</button>
+    <img id="lb-img" alt="">
+  </div>
+
+  <script src="js/modules.js"></script>
+  <script src="js/training.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
