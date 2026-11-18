@@ -59,3 +59,28 @@ body.open aside{transform:none}body.open #scrim{display:block;position:fixed;ins
 main{padding:24px 16px 80px}.lead{font-size:17px}.grid{grid-template-columns:1fr}
 .row .btn,.row button{flex:1 1 100%;text-align:center;padding:14px}nav a{padding:12px 10px}.tick{width:22px;height:22px}.q label{padding:12px}
 }
+
+/* Mode tabs in sidebar */
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:0 0 14px;background:#141414;padding:4px;border-radius:12px;border:1px solid #2b2b2b}
+.tab{padding:8px 10px;border:0;border-radius:8px;background:transparent;color:#b8b5ae;font-size:13px;font-weight:600;cursor:pointer}
+.tab.on{background:var(--y);color:#000}
+
+/* Home page path cards */
+.path-grid{margin-top:8px}
+.path-card{display:flex;flex-direction:column;text-decoration:none;color:inherit;transition:transform .15s,border-color .15s}
+.path-card:hover{transform:translateY(-2px);border-color:var(--acc)}
+.path-card .tag{display:inline-block;align-self:flex-start;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--acc);margin-bottom:6px}
+.path-card .go-link{margin-top:auto;padding-top:12px;font-weight:600;color:var(--acc)}
+
+/* Interactive slide deck */
+.deck{padding:20px 24px}
+.deck-top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-bottom:12px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.deck-count{font-size:13px;font-weight:600;color:var(--mut)}
+.deck-dots{display:flex;gap:6px;flex-wrap:wrap}
+.deck-dots .dot{width:10px;height:10px;padding:0;border-radius:50%;border:1px solid var(--acc);background:transparent}
+.deck-dots .dot.on{background:var(--acc)}
+.slide{min-height:180px}
+.slide h3{margin:0 0 12px;font-size:22px}
+.slide-img{max-width:100%;height:auto;border-radius:10px;margin:8px 0 12px;display:block}
+.slide-note{margin-top:16px;padding:10px 14px;border-left:3px solid var(--acc);background:var(--bg);border-radius:0 8px 8px 0;font-size:14px;color:var(--mut)}
+.deck-nav{display:flex;justify-content:space-between;gap:12px;margin-top:20px;padding-top:14px;border-top:1px solid var(--line)}
