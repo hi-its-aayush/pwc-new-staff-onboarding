@@ -14,107 +14,137 @@ const save = () => {
 
 const CORE_MODULES = M.filter(m => m.core && m.id !== "welcome");
 const LIB_MODULES = M.filter(m => !m.core);
-const ALL = [...M.filter(m => m.id !== "welcome"), ...T];
+const TRAINING_ALL = [...T, ...LIB_MODULES];
 
-const slug = g => g.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const LIB_GROUPS = [];
 const LIB_MAP = {};
 LIB_MODULES.forEach(m => {
-  const s = slug(m.g);
-  if (!LIB_MAP[s]) {
-    LIB_MAP[s] = { slug: s, name: m.g, items: [] };
-    LIB_GROUPS.push(LIB_MAP[s]);
+  if (!LIB_MAP[m.g]) {
+    LIB_MAP[m.g] = { name: m.g, items: [] };
+    LIB_GROUPS.push(LIB_MAP[m.g]);
   }
-  LIB_MAP[s].items.push(m);
+  LIB_MAP[m.g].items.push(m);
 });
-
-const CAT_ICONS = {
-  "Checklists": "☑",
-  "1 · Locations & storerooms": "📍",
-  "2 · Equipment & barista": "☕",
-  "3 · Cloud Booking": "📅",
-  "4 · Meeting rooms": "🏢",
-  "5 · Multi-function": "🪑",
-  "6 · Café": "🥐",
-  "7 · Catering": "🍽",
-  "8 · Formal service": "🍷"
-};
 
 const cntOb = () => CORE_MODULES.filter(m => D[m.id]).length;
 const cntTr = () => T.filter(m => D[m.id]).length;
+const nextObId = () => (CORE_MODULES.find(m => !D[m.id]) || CORE_MODULES[0]).id;
 
-function updateProgressPills() {
-  const p1 = CORE_MODULES.length ? Math.round((cntOb() / CORE_MODULES.length) * 100) : 0;
-  const p2 = T.length ? Math.round((cntTr() / T.length) * 100) : 0;
-  $("#p-day1").textContent = p1 + "%";
-  $("#p-tr").textContent = p2 + "%";
+function setTopbar(mode, stepInfo) {
+  const mid = $("#tb-mid");
+  const sw = $("#search-wrap");
+  const exit = $("#exit-link");
+  const menu = $("#menu");
+
+  if (mode === "landing") {
+    mid.innerHTML = `<span class="tb-tag">PwC Sydney · Team Portal</span>`;
+    sw.hidden = true;
+    exit.hidden = true;
+    menu.hidden = true;
+    return;
+  }
+
+  exit.hidden = false;
+  menu.hidden = false;
+
+  if (mode === "onboarding") {
+    const done = cntOb(), total = CORE_MODULES.length;
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    sw.hidden = true;
+    mid.innerHTML = `
+      <div class="tb-prog">
+        <span class="tb-label">${stepInfo || `Day 1 Onboarding · ${done}/${total}`}</span>
+        <div class="tb-bar"><i style="width:${pct}%"></i></div>
+      </div>`;
+  } else {
+    sw.hidden = false;
+    mid.innerHTML = `<span class="tb-tag">Training &amp; Reference Library</span>`;
+  }
 }
 
-function setActiveTab(tab) {
-  document.querySelectorAll("#top-nav a, .drawer-nav a").forEach(a => {
-    a.classList.toggle("on", a.dataset.tab === tab);
-  });
-}
-
-function setRail(items, label, backHref, backText, certHash, certLabel) {
+function setRail(html) {
   const rail = $("#rail");
   const dRail = $("#drawer-rail");
-  if (!items || !items.length) {
+  if (!html) {
     rail.hidden = true;
     rail.innerHTML = "";
     dRail.innerHTML = "";
     $("#shell").classList.remove("with-rail");
     return;
   }
-  const html =
-    `<a class="rail-back" href="${backHref}">← ${backText}</a>` +
-    `<div class="grp">${label}</div>` +
-    items.map(m => `<a href="#${m.id}" class="${D[m.id] ? "done" : ""} ${cur === m.id ? "on" : ""}"><b></b><span>${m.t}</span></a>`).join("") +
-    (certHash ? `<div class="grp">Finish</div><a href="#${certHash}" class="${cur === certHash ? "on" : ""}"><b></b><span>${certLabel}</span></a>` : "");
   rail.innerHTML = html;
   rail.hidden = false;
   dRail.innerHTML = html;
   $("#shell").classList.add("with-rail");
 }
 
+function renderOnboardingRail() {
+  return `<div class="grp">Day 1 Essentials</div>` +
+    CORE_MODULES.map((m, i) => `<a href="#${m.id}" class="${D[m.id] ? "done" : ""} ${cur === m.id ? "on" : ""}"><b></b><span>${i + 1}. ${m.t.replace(/^\d+(\.\d+)*\s*·\s*/, "")}</span></a>`).join("") +
+    `<div class="grp">Finish</div><a href="#certificate" class="${cur === "certificate" ? "on" : ""}"><b></b><span>Day 1 Certificate</span></a>`;
+}
+
+function renderTrainingRail(activeGroup) {
+  const trLinks =
+    `<div class="grp">Wine Training</div>` +
+    T.map(m => `<a href="#${m.id}" class="${D[m.id] ? "done" : ""} ${cur === m.id ? "on" : ""}"><b></b><span>${m.t}</span></a>`).join("") +
+    `<a href="#training-certificate" class="${cur === "training-certificate" ? "on" : ""}"><b></b><span>Training Certificate</span></a>`;
+
+  const libGroupsHtml =
+    `<div class="grp" style="margin-top:20px">Reference Library</div>` +
+    LIB_GROUPS.map(grp => {
+      const isOpen = grp.name === activeGroup ? "open" : "";
+      return `<details class="rail-det" ${isOpen}>
+        <summary>${grp.name} <span class="cnt">${grp.items.length}</span></summary>
+        <div class="det-links">
+          ${grp.items.map(m => `<a href="#${m.id}" class="${D[m.id] ? "done" : ""} ${cur === m.id ? "on" : ""}"><b></b><span>${m.t}</span></a>`).join("")}
+        </div>
+      </details>`;
+    }).join("");
+
+  return trLinks + libGroupsHtml;
+}
+
 function renderHome(el) {
-  setActiveTab("home");
+  setTopbar("landing");
   setRail(null);
   const obDone = cntOb(), obTotal = CORE_MODULES.length, obPct = obTotal ? Math.round((obDone / obTotal) * 100) : 0;
   const trDone = cntTr(), trTotal = T.length, trPct = trTotal ? Math.round((trDone / trTotal) * 100) : 0;
+  const startHref = obDone === obTotal ? "#certificate" : `#${nextObId()}`;
+  const startCta = obDone === 0 ? "Get started →" : (obDone === obTotal ? "Review Day 1 →" : `Continue (Step ${obDone + 1} of ${obTotal}) →`);
 
   el.innerHTML = `
     <section class="hero card">
       <p class="eyebrow">Gastronomy · PwC Sydney</p>
       <h1>Welcome to the team</h1>
-      <p class="lead">Gastronomy is a hospitality business for good, part of OzHarvest Ventures. Everything you need for your first shift — and ongoing team training — lives right here.</p>
+      <p class="lead">Gastronomy is a hospitality business for good, part of OzHarvest Ventures. At PwC Sydney we look after the people who work here and the clients who visit them.</p>
       <div class="purpose-pill"><b>Our purpose:</b> Strengthen the team. We cover for each other, share what we know, and step in when we see a need.</div>
     </section>
 
-    <h2 class="sec-t">Choose your path</h2>
+    <h2 class="sec-t">Where would you like to go?</h2>
     <div class="bento-2">
-      <a class="card path-card featured" href="#day1">
+      <a class="card path-card featured" href="${startHref}">
         <div class="pc-top"><span class="tag">New staff</span><span class="badge">${obDone}/${obTotal} done</span></div>
-        <h3>Let’s get you started</h3>
-        <p>Step-by-step Day 1 essentials: uniform standards, floor locations, Cloud Booking, beverage service, and your Day 1 certificate.</p>
+        <h3>Get Started · Day 1 Onboarding</h3>
+        <p>A guided, step-by-step walkthrough for your first shift — uniform standards, floor locations, Cloud Booking, beverage service, and your Day 1 certificate.</p>
         <div class="mini-bar"><i style="width:${obPct}%"></i></div>
-        <span class="go-link">Open Day 1 Onboarding →</span>
+        <span class="go-link">${startCta}</span>
       </a>
-      <a class="card path-card" href="#training">
-        <div class="pc-top"><span class="tag">Existing staff</span><span class="badge">${trDone}/${trTotal} done</span></div>
-        <h3>Training &amp; Upskilling</h3>
-        <p>Dedicated skill tracks including <b>Wine Training</b>, interactive slide decks, knowledge checks, and team certificates.</p>
+      <a class="card path-card" href="#${T[0].id}">
+        <div class="pc-top"><span class="tag">Existing staff</span><span class="badge">${trDone}/${trTotal} modules</span></div>
+        <h3>Training &amp; Library</h3>
+        <p><b>Wine Training</b> slide decks and quizzes, plus the full operational <b>Reference Library</b> (Franke Mytico, catering, formal service &amp; checklists).</p>
         <div class="mini-bar"><i style="width:${trPct}%"></i></div>
-        <span class="go-link">Open Training Modules →</span>
+        <span class="go-link">Open Training &amp; Library →</span>
       </a>
     </div>
 
     <h2 class="sec-t">What we do at PwC</h2>
     <div class="bento-4">
-      <a class="card mini-card" href="#library"><h3>☕ Meeting rooms</h3><p>Barista coffee, Franke Mytico &amp; boardroom beverage service.</p></a>
-      <a class="card mini-card" href="#cat/8-formal-service"><h3>🍷 Functions &amp; events</h3><p>Multi-function rooms, formal dining &amp; cocktail service.</p></a>
-      <a class="card mini-card" href="#cat/6-caf"><h3>🥐 The Edge</h3><p>Our staff café on Level 16 — opening, closing &amp; wastage.</p></a>
-      <a class="card mini-card" href="#cat/3-cloud-booking"><h3>📅 Behind the scenes</h3><p>Pantries, Cloud Booking &amp; daily shift standards.</p></a>
+      <div class="card mini-card static"><h3>☕ Meeting rooms</h3><p>Barista coffee, Franke Mytico &amp; boardroom beverage service.</p></div>
+      <div class="card mini-card static"><h3>🍷 Functions &amp; events</h3><p>Multi-function rooms, formal dining &amp; cocktail service.</p></div>
+      <div class="card mini-card static"><h3>🥐 The Edge</h3><p>Our staff café on Level 16.</p></div>
+      <div class="card mini-card static"><h3>📅 Behind the scenes</h3><p>Pantries, Cloud Booking &amp; daily shift standards.</p></div>
     </div>
 
     <h2 class="sec-t">Meet the team</h2>
@@ -123,131 +153,6 @@ function renderHome(el) {
       <div class="card person"><span class="av">AA</span><h3>Aayush Acharya</h3><p class="role">Supervisor</p><p>Supports the team on shift.</p></div>
       <div class="card person"><span class="av">AV</span><h3>Andrew Vongratsavai</h3><p class="role">Supervisor</p><p>Supports the team on shift.</p></div>
       <div class="card person"><span class="av">WY</span><h3>Wendy Yang</h3><p class="role">Supervisor</p><p>Supports the team on shift.</p></div>
-    </div>`;
-}
-
-function renderDay1(el) {
-  setActiveTab("day1");
-  setRail(null);
-  const done = cntOb(), total = CORE_MODULES.length, pct = total ? Math.round((done / total) * 100) : 0;
-
-  el.innerHTML = `
-    <div class="crumb"><a href="#welcome">Home</a> › <span>Day 1 Onboarding</span></div>
-    <div class="hub-head">
-      <div>
-        <p class="eyebrow">New staff · Day 1 essentials</p>
-        <h1>Let’s get you started</h1>
-        <p class="lead">Complete all ${total} essential topics and pass their quizzes to unlock your Day 1 certificate.</p>
-      </div>
-      <div class="card stat-box">
-        <div class="stat-num">${pct}%</div>
-        <div class="stat-sub">${done} of ${total} completed</div>
-        <div class="mini-bar"><i style="width:${pct}%"></i></div>
-      </div>
-    </div>
-    <div class="topic-grid">
-      ${CORE_MODULES.map((m, idx) => `
-        <a class="card topic-card ${D[m.id] ? "is-done" : ""}" href="#${m.id}">
-          <div class="tc-top">
-            <span class="tc-num">Step ${idx + 1}</span>
-            <span class="tc-state">${D[m.id] ? "✓ Learned" : (m.quiz ? "Quiz" : "Read")}</span>
-          </div>
-          <h3>${m.t}</h3>
-          <span class="go-link">${D[m.id] ? "Review →" : "Start →"}</span>
-        </a>`).join("")}
-      <a class="card topic-card cert-card" href="#certificate">
-        <div class="tc-top"><span class="tc-num">Finish</span><span class="tc-state">${done === total ? "Unlocked ✓" : "Locked"}</span></div>
-        <h3>Day 1 Certificate</h3>
-        <p>Download or print your completion certificate once all ${total} steps are done.</p>
-        <span class="go-link">Open certificate →</span>
-      </a>
-    </div>`;
-}
-
-function renderLibrary(el) {
-  setActiveTab("library");
-  setRail(null);
-  el.innerHTML = `
-    <div class="crumb"><a href="#welcome">Home</a> › <span>Reference Library</span></div>
-    <p class="eyebrow">Operational guides &amp; SOPs</p>
-    <h1>Reference Library</h1>
-    <p class="lead">Pick a category below to browse equipment guides, room setups, catering SOPs, and shift checklists.</p>
-    <div class="cat-grid">
-      ${LIB_GROUPS.map(grp => {
-        const doneCount = grp.items.filter(m => D[m.id]).length;
-        const icon = CAT_ICONS[grp.name] || "📘";
-        return `
-          <a class="card cat-card" href="#cat/${grp.slug}">
-            <div class="cat-ico">${icon}</div>
-            <h3>${grp.name}</h3>
-            <p>${grp.items.length} topics${doneCount ? ` · ${doneCount} learned` : ""}</p>
-            <span class="go-link">Browse →</span>
-          </a>`;
-      }).join("")}
-    </div>`;
-}
-
-function renderCategory(el, catSlug) {
-  setActiveTab("library");
-  setRail(null);
-  const grp = LIB_MAP[catSlug];
-  if (!grp) return renderLibrary(el);
-
-  el.innerHTML = `
-    <div class="crumb"><a href="#welcome">Home</a> › <a href="#library">Reference Library</a> › <span>${grp.name}</span></div>
-    <p class="eyebrow">Reference Library</p>
-    <h1>${grp.name}</h1>
-    <p class="lead">${grp.items.length} guides in this category.</p>
-    <div class="topic-grid">
-      ${grp.items.map(m => `
-        <a class="card topic-card ${D[m.id] ? "is-done" : ""}" href="#${m.id}">
-          <div class="tc-top">
-            <span class="tc-num">${m.slides ? `${m.slides.length} slides` : "Guide"}</span>
-            <span class="tc-state">${D[m.id] ? "✓ Learned" : (m.quiz ? "Quiz" : "Read")}</span>
-          </div>
-          <h3>${m.t}</h3>
-          <span class="go-link">Open →</span>
-        </a>`).join("")}
-    </div>`;
-}
-
-function renderTraining(el) {
-  setActiveTab("training");
-  setRail(null);
-  const done = cntTr(), total = T.length, pct = total ? Math.round((done / total) * 100) : 0;
-
-  el.innerHTML = `
-    <div class="crumb"><a href="#welcome">Home</a> › <span>Training &amp; Upskilling</span></div>
-    <div class="hub-head">
-      <div>
-        <p class="eyebrow">Existing staff · Skill tracks</p>
-        <h1>Training &amp; Upskilling</h1>
-        <p class="lead">Focused training tracks with slide decks and quizzes to build confidence across wine service and events.</p>
-      </div>
-      <div class="card stat-box">
-        <div class="stat-num">${pct}%</div>
-        <div class="stat-sub">${done} of ${total} completed</div>
-        <div class="mini-bar"><i style="width:${pct}%"></i></div>
-      </div>
-    </div>
-    <h2 class="sec-t">🍷 Wine Training</h2>
-    <div class="topic-grid">
-      ${T.map((m, idx) => `
-        <a class="card topic-card ${D[m.id] ? "is-done" : ""}" href="#${m.id}">
-          <div class="tc-top">
-            <span class="tc-num">Module ${idx + 1} · ${m.slides ? `${m.slides.length} slides` : "Lesson"}</span>
-            <span class="tc-state">${D[m.id] ? "✓ Learned" : (m.quiz ? "Quiz" : "Read")}</span>
-          </div>
-          <h3>${m.t}</h3>
-          <p>${m.intro || ""}</p>
-          <span class="go-link">${D[m.id] ? "Review →" : "Start →"}</span>
-        </a>`).join("")}
-      <a class="card topic-card cert-card" href="#training-certificate">
-        <div class="tc-top"><span class="tc-num">Finish</span><span class="tc-state">${done === total ? "Unlocked ✓" : "Locked"}</span></div>
-        <h3>Training Certificate</h3>
-        <p>Complete all ${total} Wine Training modules to unlock your certificate.</p>
-        <span class="go-link">Open certificate →</span>
-      </a>
     </div>`;
 }
 
@@ -317,13 +222,14 @@ function bindZoom(scope = "#main") {
   });
 }
 
-function renderLesson(el, m, groupList, tab, backHref, backText, certHash, certLabel) {
-  setActiveTab(tab);
-  setRail(groupList, m.g, backHref, backText, certHash, certLabel);
+function renderOnboardingLesson(el, m) {
+  const idx = CORE_MODULES.findIndex(x => x.id === m.id);
+  const prev = idx > 0 ? CORE_MODULES[idx - 1] : null;
+  const next = idx < CORE_MODULES.length - 1 ? CORE_MODULES[idx + 1] : null;
+  const nextHref = next ? `#${next.id}` : "#certificate";
 
-  const idx = groupList.findIndex(x => x.id === m.id);
-  const prev = idx > 0 ? groupList[idx - 1] : null;
-  const next = idx < groupList.length - 1 ? groupList[idx + 1] : null;
+  setTopbar("onboarding", `Step ${idx + 1} of ${CORE_MODULES.length}`);
+  setRail(renderOnboardingRail());
 
   const q = m.quiz
     ? m.quiz.map((x, k) => `<div class="q"><b>${k + 1}. ${x.q}</b>${x.o.map((o, j) => `<label><input type="radio" name="q${k}" value="${j}"> ${o}</label>`).join("")}</div>`).join("") +
@@ -335,7 +241,66 @@ function renderLesson(el, m, groupList, tab, backHref, backText, certHash, certL
     : (m.pts ? `<div class="card"><ul class="pts">${m.pts.map(p => `<li>${p}</li>`).join("")}</ul></div>` : "");
 
   el.innerHTML =
-    `<div class="crumb"><a href="#welcome">Home</a> › <a href="${backHref}">${backText}</a> › <span>${m.t}</span></div>` +
+    `<p class="eyebrow">Step ${idx + 1} of ${CORE_MODULES.length} · Day 1 Essentials</p><h1>${m.t}</h1>` +
+    (m.intro ? `<p class="lead">${m.intro}</p>` : "") +
+    bodyHtml +
+    renderSlides(m.slides) +
+    (m.table ? `<h2>Quick reference</h2><div class="card scroll"><table><tr>${m.table.h.map(h => `<th>${h}</th>`).join("")}</tr>${m.table.r.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join("")}</tr>`).join("")}</table></div>` : "") +
+    (q ? `<h2>Quick check</h2><div class="card">${q}</div>` : "") +
+    `<div class="row">
+      ${prev ? `<a class="btn" href="#${prev.id}">← Previous</a>` : ""}
+      <button class="p" id="mk-next" ${m.quiz && !D[m.id] ? "disabled" : ""}>${next ? "Complete &amp; Continue →" : "Complete &amp; Get Certificate →"}</button>
+    </div>`;
+
+  cleanLegacyProse(el);
+  bindSlides(m.slides);
+  bindZoom("#main");
+
+  const c = $("#chk");
+  if (c) {
+    c.onclick = () => {
+      let ok = 0;
+      m.quiz.forEach((x, k) => {
+        const r = document.querySelector(`input[name=q${k}]:checked`);
+        document.querySelectorAll(`input[name=q${k}]`).forEach(e => e.parentElement.className = "");
+        if (r) {
+          const good = +r.value === x.a;
+          r.parentElement.className = good ? "ok" : "bad";
+          if (good) ok++;
+        }
+      });
+      const all = ok === m.quiz.length;
+      $("#res").className = "msg " + (all ? "ok" : "bad");
+      $("#res").textContent = all ? "All correct! Ready to continue." : `${ok}/${m.quiz.length} correct. Fix the red answers and check again.`;
+      $("#mk-next").disabled = !all;
+    };
+  }
+
+  $("#mk-next").onclick = () => {
+    D[m.id] = 1;
+    save();
+    location.hash = nextHref;
+  };
+}
+
+function renderTrainingLesson(el, m, list, isWine) {
+  setTopbar("training");
+  setRail(renderTrainingRail(isWine ? null : m.g));
+
+  const idx = list.findIndex(x => x.id === m.id);
+  const prev = idx > 0 ? list[idx - 1] : null;
+  const next = idx < list.length - 1 ? list[idx + 1] : null;
+
+  const q = m.quiz
+    ? m.quiz.map((x, k) => `<div class="q"><b>${k + 1}. ${x.q}</b>${x.o.map((o, j) => `<label><input type="radio" name="q${k}" value="${j}"> ${o}</label>`).join("")}</div>`).join("") +
+      `<button id="chk">Check answers</button><div class="msg" id="res"></div>`
+    : "";
+
+  const bodyHtml = m.html
+    ? `<div class="card prose">${m.html}</div>`
+    : (m.pts ? `<div class="card"><ul class="pts">${m.pts.map(p => `<li>${p}</li>`).join("")}</ul></div>` : "");
+
+  el.innerHTML =
     `<p class="eyebrow">${m.g}</p><h1>${m.t}</h1>` +
     (m.intro ? `<p class="lead">${m.intro}</p>` : "") +
     bodyHtml +
@@ -345,7 +310,7 @@ function renderLesson(el, m, groupList, tab, backHref, backText, certHash, certL
     `<div class="row">
       ${prev ? `<a class="btn" href="#${prev.id}">← Previous</a>` : ""}
       <button class="p" id="mk" ${m.quiz && !D[m.id] ? "disabled" : ""}>${D[m.id] ? "Learned ✓" : "Mark as learned"}</button>
-      <a class="btn" href="#${next ? next.id : certHash}">${next ? `Next: ${next.t}` : `Finish: ${certLabel}`} →</a>
+      ${next ? `<a class="btn" href="#${next.id}">Next: ${next.t} →</a>` : (isWine ? `<a class="btn" href="#training-certificate">Finish: Training Certificate →</a>` : "")}
     </div>`;
 
   cleanLegacyProse(el);
@@ -381,19 +346,17 @@ function renderLesson(el, m, groupList, tab, backHref, backText, certHash, certL
 
 function renderCert(el, kind) {
   const isTr = kind === "tr";
-  setActiveTab(isTr ? "training" : "day1");
-  setRail(isTr ? T : CORE_MODULES, isTr ? "Wine Training" : "Day 1 essentials", isTr ? "#training" : "#day1", isTr ? "Training" : "Day 1", isTr ? "training-certificate" : "certificate", isTr ? "Training Certificate" : "Certificate");
+  setTopbar(isTr ? "training" : "onboarding", isTr ? null : "Finish · Certificate");
+  setRail(isTr ? renderTrainingRail(null) : renderOnboardingRail());
 
   const done = isTr ? cntTr() : cntOb();
   const total = isTr ? T.length : CORE_MODULES.length;
   const ready = total > 0 && done === total;
   const title = isTr ? "Training & Upskilling (Wine Training)" : "Day 1 onboarding";
 
-  el.innerHTML =
-    `<div class="crumb"><a href="#welcome">Home</a> › <a href="${isTr ? "#training" : "#day1"}">${isTr ? "Training" : "Day 1"}</a> › <span>Certificate</span></div>` +
-    (ready
-      ? `<div class="noprint"><p class="eyebrow">Finish</p><h1>Your ${isTr ? "training " : ""}certificate</h1><p class="lead">Enter your full name as it should appear.</p><input type="text" id="nm" placeholder="Full name" value="${N.replace(/"/g, "&quot;")}"></div><div class="cert" style="margin-top:24px"><div class="logo"><span>g</span>astronomy</div><p class="eyebrow">Certificate of completion</p><p>This certifies that</p><h1 id="cn">${N || "Your name"}</h1><p>completed ${title} with Gastronomy at PwC Sydney on ${new Date().toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })}</p></div><div class="row"><button class="p" onclick="print()">Print or save as PDF</button></div>`
-      : `<p class="eyebrow">Finish</p><h1>${isTr ? "Training Certificate" : "Day 1 Certificate"}</h1><p class="lead">Finish all ${total} ${isTr ? "training" : "Day 1"} topics to unlock your certificate. You have completed ${done} of ${total}.</p><div class="row"><a class="btn p" href="#${isTr ? T[0].id : CORE_MODULES[0].id}">Continue ${isTr ? "training" : "Day 1"} →</a></div>`);
+  el.innerHTML = ready
+    ? `<div class="noprint"><p class="eyebrow">Finish</p><h1>Your ${isTr ? "training " : ""}certificate</h1><p class="lead">Enter your full name as it should appear.</p><input type="text" id="nm" placeholder="Full name" value="${N.replace(/"/g, "&quot;")}"></div><div class="cert" style="margin-top:24px"><div class="logo"><span>g</span>astronomy</div><p class="eyebrow">Certificate of completion</p><p>This certifies that</p><h1 id="cn">${N || "Your name"}</h1><p>completed ${title} with Gastronomy at PwC Sydney on ${new Date().toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })}</p></div><div class="row"><button class="p" onclick="print()">Print or save as PDF</button></div>`
+    : `<p class="eyebrow">Finish</p><h1>${isTr ? "Training Certificate" : "Day 1 Certificate"}</h1><p class="lead">Finish all ${total} ${isTr ? "training" : "Day 1"} topics to unlock your certificate. You have completed ${done} of ${total}.</p><div class="row"><a class="btn p" href="#${isTr ? T[0].id : nextObId()}">Continue ${isTr ? "training" : "Day 1"} →</a></div>`;
 
   const nm = $("#nm");
   if (nm) {
@@ -410,33 +373,25 @@ let cur = "welcome";
 function view() {
   cur = location.hash.slice(1) || "welcome";
   const el = $("#main");
-  updateProgressPills();
 
   if (cur === "welcome") return renderHome(el);
-  if (cur === "day1") return renderDay1(el);
-  if (cur === "library") return renderLibrary(el);
-  if (cur === "training") return renderTraining(el);
-  if (cur.startsWith("cat/")) return renderCategory(el, cur.slice(4));
   if (cur === "certificate") return renderCert(el, "ob");
   if (cur === "training-certificate") return renderCert(el, "tr");
 
   const coreM = CORE_MODULES.find(m => m.id === cur);
-  if (coreM) return renderLesson(el, coreM, CORE_MODULES, "day1", "#day1", "Day 1", "certificate", "Certificate");
+  if (coreM) return renderOnboardingLesson(el, coreM);
 
   const trM = T.find(m => m.id === cur);
-  if (trM) return renderLesson(el, trM, T, "training", "#training", "Training", "training-certificate", "Training Certificate");
+  if (trM) return renderTrainingLesson(el, trM, T, true);
 
   const libM = LIB_MODULES.find(m => m.id === cur);
-  if (libM) {
-    const grp = LIB_MAP[slug(libM.g)];
-    return renderLesson(el, libM, grp.items, "library", `#cat/${grp.slug}`, grp.name, "library", "Library");
-  }
+  if (libM) return renderTrainingLesson(el, libM, LIB_MAP[libM.g].items, false);
 
   cur = "welcome";
   renderHome(el);
 }
 
-// Search popover
+// Search popover (Training & Library only)
 function runSearch() {
   const f = $("#s").value.trim().toLowerCase();
   const pop = $("#s-pop");
@@ -445,7 +400,7 @@ function runSearch() {
     pop.innerHTML = "";
     return;
   }
-  const hits = ALL.filter(m => {
+  const hits = TRAINING_ALL.filter(m => {
     if (m.x && m.x.includes(f)) return true;
     return (m.t + " " + m.g + " " + (m.intro || "")).toLowerCase().includes(f);
   }).slice(0, 10);
@@ -469,7 +424,7 @@ document.addEventListener("click", e => {
 $("#lb-close").onclick = () => { $("#lightbox").hidden = true; };
 $("#lightbox").onclick = e => { if (e.target === $("#lightbox")) $("#lightbox").hidden = true; };
 
-// Keyboard shortcuts (slides + lightbox)
+// Keyboard shortcuts
 document.addEventListener("keydown", e => {
   if (e.key === "Escape" && !$("#lightbox").hidden) {
     $("#lightbox").hidden = true;

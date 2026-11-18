@@ -11,31 +11,24 @@
   <header class="topbar noprint">
     <div class="tb-in">
       <a class="logo" href="#welcome"><span>g</span>astronomy</a>
-      <nav class="top-nav" id="top-nav" aria-label="Primary">
-        <a href="#welcome" data-tab="home">Home</a>
-        <a href="#day1" data-tab="day1">Day 1 <span class="pill" id="p-day1">0%</span></a>
-        <a href="#library" data-tab="library">Library</a>
-        <a href="#training" data-tab="training">Training <span class="pill" id="p-tr">0%</span></a>
-      </nav>
+      <div class="tb-mid" id="tb-mid"></div>
       <div class="tb-right">
-        <div class="search-wrap">
-          <input type="search" id="s" placeholder="Search topics…" aria-label="Search topics">
+        <div class="search-wrap" id="search-wrap" hidden>
+          <input type="search" id="s" placeholder="Search training &amp; SOPs…" aria-label="Search training">
           <div class="search-pop" id="s-pop" hidden></div>
         </div>
+        <a class="exit-link" id="exit-link" href="#welcome" hidden>← Home</a>
         <button type="button" id="theme-btn" class="icon-btn" aria-label="Toggle dark or light mode">🌙</button>
-        <button type="button" id="menu" class="icon-btn mobile-only" aria-label="Open menu">☰</button>
+        <button type="button" id="menu" class="icon-btn mobile-only" aria-label="Open menu" hidden>☰</button>
       </div>
     </div>
   </header>
 
   <div id="scrim"></div>
   <div class="mobile-drawer noprint" id="drawer">
-    <nav class="drawer-nav">
-      <a href="#welcome" data-tab="home">Home</a>
-      <a href="#day1" data-tab="day1">Day 1 Onboarding</a>
-      <a href="#library" data-tab="library">Reference Library</a>
-      <a href="#training" data-tab="training">Training &amp; Upskilling</a>
-    </nav>
+    <div class="drawer-head">
+      <a class="exit-link" href="#welcome">← Back to Home</a>
+    </div>
     <div id="drawer-rail"></div>
   </div>
 

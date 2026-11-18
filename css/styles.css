@@ -31,12 +31,24 @@ h2{font-weight:500;margin:28px 0 12px}
 .tb-in{max-width:1240px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:18px}
 .logo{font-size:28px;line-height:1;color:#fff;text-decoration:none;flex:none}
 .logo span{color:var(--y)}
-.top-nav{display:flex;align-items:center;gap:6px;flex:1}
-.top-nav a{color:#ccc;text-decoration:none;padding:7px 12px;border-radius:10px;font-size:14px;font-weight:500;display:inline-flex;align-items:center;gap:6px;transition:background .15s,color .15s}
-.top-nav a:hover{background:#1c1c1c;color:#fff}
-.top-nav a.on{background:var(--y);color:#000;font-weight:600}
-.pill{font-size:11px;padding:1px 7px;border-radius:99px;background:rgba(255,255,255,.14);color:#fff}
-.top-nav a.on .pill{background:#000;color:var(--y)}
+.tb-mid{flex:1;display:flex;align-items:center;min-width:0}
+.tb-tag{font-size:13px;color:#b8b5ae;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-prog{display:flex;align-items:center;gap:12px;width:min(320px,100%)}
+.tb-label{font-size:13px;font-weight:600;color:var(--y);white-space:nowrap}
+.tb-bar{flex:1;height:6px;background:#333;border-radius:99px;overflow:hidden}
+.tb-bar i{display:block;height:100%;background:var(--y);transition:width .3s}
+.exit-link{color:#ddd;text-decoration:none;font-size:13px;font-weight:600;padding:6px 10px;border-radius:8px;border:1px solid #333;white-space:nowrap}
+.exit-link:hover{border-color:var(--y);color:var(--y)}
+.drawer-head{padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid #2b2b2b}
+.rail-det{margin:4px 0}
+.rail-det summary{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:500;list-style:none}
+.rail-det summary::-webkit-details-marker{display:none}
+.rail-det summary:hover{background:var(--bg)}
+.rail-det[open] summary{color:var(--acc);font-weight:600}
+.rail-det .cnt{font-size:11px;padding:1px 7px;border-radius:99px;background:var(--bg);color:var(--mut)}
+.det-links{padding-left:8px;border-left:1px solid var(--line);margin:2px 0 6px 10px}
+.mobile-drawer .rail-det summary:hover{background:#1c1c1c}
+.mobile-drawer .rail-det .cnt{background:#222;color:#aaa}
 
 .tb-right{display:flex;align-items:center;gap:8px;margin-left:auto}
 .search-wrap{position:relative;width:230px}
