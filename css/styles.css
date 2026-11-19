@@ -167,10 +167,53 @@ input[type=text]{width:100%;padding:10px 12px;border:1px solid var(--line);borde
 .slide-note{margin-top:16px;padding:10px 14px;border-left:3px solid var(--acc);background:var(--bg);border-radius:0 8px 8px 0;font-size:14px;color:var(--mut)}
 .deck-nav{display:flex;justify-content:space-between;gap:12px;margin-top:20px;padding-top:14px;border-top:1px solid var(--line)}
 
-/* Certificate */
-.cert{text-align:center;border:3px double #000;padding:48px 24px;background:var(--card);border-radius:8px}
-.cert .logo{color:var(--ink);font-size:30px;margin-bottom:12px}
-.cert h1{font-size:40px}
+/* Staff Completion Record & Signature Form */
+.sign-form{margin-bottom:24px}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.form-grid label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:var(--mut)}
+.form-grid select,.form-grid input[type=date]{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font:inherit}
+.sig-wrap{margin-top:18px}
+.sig-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:13px;font-weight:600;color:var(--mut)}
+.sig-cv{width:100%;max-width:440px;height:130px;background:#fff;border:1px solid var(--line);border-radius:12px;display:block;touch-action:none;cursor:crosshair}
+.sig-hint{font-size:12px;color:var(--mut);margin-top:4px;display:block}
+.decl-chk{display:flex;gap:10px;align-items:flex-start;margin-top:18px;font-size:14px;cursor:pointer}
+.decl-chk input{margin-top:4px;width:18px;height:18px;accent-color:#111;flex:none}
+
+.record{background:#fff;color:#111;border:1px solid var(--line);padding:34px 36px;border-radius:14px}
+.rec-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding-bottom:18px;border-bottom:1px solid #e5e2da}
+.rec-logo{color:#111!important;font-size:30px}
+.rec-meta-r{text-align:right;font-size:12px;color:#5a564f}
+.rec-type{font-weight:700;letter-spacing:.06em;color:#7d6200}
+.rec-who{padding:18px 0;border-bottom:1px solid #e5e2da}
+.rec-who h2{margin:0 0 4px;font-size:28px;font-weight:500}
+.rec-who p{margin:0;color:#5a564f;font-size:14px}
+.rec-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:18px 0;border-bottom:1px solid #e5e2da}
+.rec-grid .rk{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#6b6761;margin-bottom:2px}
+.rec-grid b{font-size:14px;font-weight:600}
+.record h3{font-size:17px;margin:22px 0 10px}
+.rec-tbl{width:100%;border-collapse:collapse;font-size:14px}
+.rec-tbl th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#6b6761;border-bottom:1px solid #d9d5ce;padding:8px 6px}
+.rec-tbl td{padding:8px 6px;border-bottom:1px solid #efece6}
+.rec-tbl .mut{color:#6b6761}
+.rec-tbl .ok{color:#2f7a45;font-weight:600;white-space:nowrap}
+.rec-decl{margin-top:22px;padding-top:16px;border-top:1px solid #e5e2da}
+.rec-decl p{font-size:14px;line-height:1.55;margin:6px 0 16px}
+.rec-sig-box{display:inline-flex;flex-direction:column;min-width:240px;border:1px solid #d9d5ce;border-radius:10px;padding:12px 14px;background:#faf9f6}
+.rec-sig-box img{max-height:70px;width:auto;object-fit:contain;align-self:flex-start;margin-bottom:6px}
+.sig-empty{height:56px;display:grid;place-items:center;color:#999;font-size:12px;border-bottom:1px dashed #ccc;margin-bottom:6px}
+.rec-sig-meta{display:flex;flex-direction:column;font-size:12px;color:#5a564f;border-top:1px solid #e5e2da;padding-top:6px}
+.rec-sig-meta b{color:#111;font-size:13px}
+.rec-foot{display:flex;justify-content:space-between;gap:12px;margin-top:28px;padding-top:12px;border-top:1px solid #e5e2da;font-size:11px;color:#6b6761}
+
+@media(max-width:760px){
+  .form-grid,.rec-grid{grid-template-columns:1fr}
+  .record{padding:22px 18px}
+}
+
+@media print{
+  .record{border:0;padding:0;box-shadow:none}
+  .rec-head,.rec-who,.rec-grid,.rec-tbl tr,.rec-decl{break-inside:avoid}
+}
 
 /* Lightbox (Tap-to-Zoom) */
 .lb{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.88);display:grid;place-items:center;padding:24px;animation:fadeIn .18s ease-out}

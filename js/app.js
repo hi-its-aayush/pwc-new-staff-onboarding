@@ -439,29 +439,197 @@ function renderTrainingLesson(el, m, list, isWine) {
   };
 }
 
+let ROLE = "", START_DT = "";
+try {
+  ROLE = localStorage.getItem("ob-role") || "Casual FOH";
+  START_DT = localStorage.getItem("ob-start") || new Date().toISOString().slice(0, 10);
+} catch (e) {}
+
 function renderCert(el, kind) {
   const isTr = kind === "tr";
   setTopbar(isTr ? "training" : "onboarding", isTr ? null : "Finish · Certificate");
   setRail(isTr ? renderWineRail() : renderOnboardingRail());
 
+  const list = isTr ? T : CORE_MODULES;
   const done = isTr ? cntTr() : cntOb();
-  const total = isTr ? T.length : CORE_MODULES.length;
+  const total = list.length;
   const ready = total > 0 && done === total;
-  const title = isTr ? "Training & Upskilling (Wine Training)" : "Day 1 onboarding";
+  const title = isTr ? "Training & Upskilling (Wine Training)" : "Day 1 Onboarding";
+  const todayIso = new Date().toISOString().slice(0, 10);
+  const fmtDate = iso => {
+    if (!iso) return "—";
+    const [y, m, d] = iso.split("-");
+    return new Date(+y, +m - 1, +d).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" });
+  };
+  const recId = "PWCSYD-" + Math.abs((N + title + todayIso).split("").reduce((a, c) => ((a << 5) - a + c.charCodeAt(0)) | 0, 0)).toString(36).toUpperCase().slice(0, 6);
 
-  el.innerHTML = ready
-    ? `<div class="noprint"><p class="eyebrow">Finish</p><h1>Your ${isTr ? "training " : ""}certificate</h1><p class="lead">Enter your full name as it should appear.</p><input type="text" id="nm" placeholder="Full name" value="${N.replace(/"/g, "&quot;")}"></div><div class="cert" style="margin-top:24px"><div class="logo"><span>g</span>astronomy</div><p class="eyebrow">Certificate of completion</p><p>This certifies that</p><h1 id="cn">${N || "Your name"}</h1><p>completed ${title} with Gastronomy at PwC Sydney on ${new Date().toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })}</p></div><div class="row"><button class="p" onclick="print()">Print or save as PDF</button></div>`
-    : `<p class="eyebrow">Finish</p><h1>${isTr ? "Training Certificate" : "Day 1 Certificate"}</h1><p class="lead">Finish all ${total} ${isTr ? "training" : "Day 1"} topics to unlock your certificate. You have completed ${done} of ${total}.</p><div class="row"><a class="btn p" href="#${isTr ? T[0].id : nextObId()}">Continue ${isTr ? "training" : "Day 1"} →</a></div>`;
-
-  const nm = $("#nm");
-  if (nm) {
-    nm.oninput = () => {
-      N = nm.value;
-      $("#cn").textContent = N || "Your name";
-      save();
-    };
+  if (!ready) {
+    el.innerHTML = `<p class="eyebrow">Finish</p><h1>${isTr ? "Training Record" : "Day 1 Completion Record"}</h1><p class="lead">Finish all ${total} ${isTr ? "training" : "Day 1"} topics to unlock your completion record &amp; PDF. You have completed ${done} of ${total}.</p><div class="row"><a class="btn p" href="#${isTr ? T[0].id : nextObId()}">Continue ${isTr ? "training" : "Day 1"} →</a></div>`;
+    return;
   }
-  if (ready) launchConfetti();
+
+  el.innerHTML = `
+    <div class="noprint">
+      <p class="eyebrow">Finish</p>
+      <h1>${isTr ? "Training" : "Day 1"} completion record</h1>
+      <p class="lead">Fill in your details and sign below to generate your PDF record for your manager or yourself.</p>
+
+      <div class="card sign-form">
+        <div class="form-grid">
+          <label><span>Staff name *</span><input type="text" id="nm" placeholder="Full name" value="${N.replace(/"/g, "&quot;")}"></label>
+          <label><span>Role</span>
+            <select id="rl">
+              ${["Casual FOH", "Barista", "Functions & Events", "Café / The Edge", "Supervisor"].map(r => `<option value="${r}" ${ROLE === r ? "selected" : ""}>${r}</option>`).join("")}
+            </select>
+          </label>
+          <label><span>Start date</span><input type="date" id="sd" value="${START_DT}"></label>
+          <label><span>Completion date</span><input type="date" id="cd" value="${todayIso}"></label>
+        </div>
+
+        <div class="sig-wrap">
+          <div class="sig-head"><span>Staff member signature *</span><button type="button" class="mini-reset" id="sig-clr">Clear</button></div>
+          <canvas id="sig-cv" class="sig-cv" width="520" height="140"></canvas>
+          <span class="sig-hint">Sign with your finger, stylus, or mouse</span>
+        </div>
+
+        <label class="decl-chk"><input type="checkbox" id="decl-ok" checked> <span>I confirm I have completed the ${title} with Gastronomy at PwC Sydney, read and understood the standards and procedures, and agree to work to them.</span></label>
+
+        <div class="row" style="margin-top:16px;padding-top:16px">
+          <button type="button" class="p" id="save-pdf">Save / Print PDF</button>
+        </div>
+      </div>
+    </div>
+
+    <article class="record card" id="record-doc">
+      <div class="rec-head">
+        <div class="logo rec-logo"><span>g</span>astronomy</div>
+        <div class="rec-meta-r">
+          <div class="rec-type">STAFF ${isTr ? "TRAINING" : "ONBOARDING"} RECORD</div>
+          <div class="rec-ts">Issued ${new Date().toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" })}</div>
+        </div>
+      </div>
+
+      <div class="rec-who">
+        <h2 id="r-name">${N || "Staff Member"}</h2>
+        <p><span id="r-role">${ROLE}</span> · Gastronomy, PwC Sydney (Barangaroo)</p>
+      </div>
+
+      <div class="rec-grid">
+        <div><span class="rk">Start date</span><b id="r-sd">${fmtDate(START_DT)}</b></div>
+        <div><span class="rk">Completion date</span><b id="r-cd">${fmtDate(todayIso)}</b></div>
+        <div><span class="rk">Modules learned</span><b>${done} of ${total}</b></div>
+        <div><span class="rk">Knowledge checks</span><b>Passed ✓</b></div>
+      </div>
+
+      <h3>Completed modules</h3>
+      <table class="rec-tbl">
+        <thead><tr><th>Section</th><th>Module</th><th>Status</th></tr></thead>
+        <tbody>
+          ${list.map(m => `<tr><td class="mut">${m.g}</td><td>${m.t}</td><td class="ok">✓ Completed</td></tr>`).join("")}
+        </tbody>
+      </table>
+
+      <div class="rec-decl">
+        <h3>Declaration</h3>
+        <p id="r-decl-txt">I, <b>${N || "Staff Member"}</b>, confirm I have completed ${title} with Gastronomy at PwC Sydney, read and understood the uniform standards, food safety, and operating procedures, and agree to work to these standards.</p>
+        <div class="rec-sig-box">
+          <img id="r-sig-img" alt="Staff signature" hidden>
+          <div id="r-sig-empty" class="sig-empty">Signed above</div>
+          <div class="rec-sig-meta">
+            <span>STAFF MEMBER</span>
+            <b id="r-sig-name">${N || "Staff Member"}</b>
+            <span id="r-sig-dt">${fmtDate(todayIso)}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="rec-foot">
+        <span>Gastronomy · PwC Sydney · One International Towers, Barangaroo</span>
+        <span>Record ${recId}</span>
+      </div>
+    </article>`;
+
+  const sync = () => {
+    const nmVal = $("#nm").value.trim() || "Staff Member";
+    N = $("#nm").value;
+    ROLE = $("#rl").value;
+    START_DT = $("#sd").value;
+    const cdVal = $("#cd").value;
+    save();
+    try { localStorage.setItem("ob-role", ROLE); localStorage.setItem("ob-start", START_DT); } catch (e) {}
+    $("#r-name").textContent = nmVal;
+    $("#r-role").textContent = ROLE;
+    $("#r-sd").textContent = fmtDate(START_DT);
+    $("#r-cd").textContent = fmtDate(cdVal);
+    $("#r-sig-name").textContent = nmVal;
+    $("#r-sig-dt").textContent = fmtDate(cdVal);
+    $("#r-decl-txt").innerHTML = `I, <b>${nmVal}</b>, confirm I have completed ${title} with Gastronomy at PwC Sydney, read and understood the uniform standards, food safety, and operating procedures, and agree to work to these standards.`;
+  };
+
+  $("#nm").oninput = sync;
+  $("#rl").onchange = sync;
+  $("#sd").onchange = sync;
+  $("#cd").onchange = sync;
+
+  // Signature canvas
+  const cv = $("#sig-cv"), ctx = cv.getContext("2d");
+  ctx.lineWidth = 2.2;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.strokeStyle = "#111";
+  let drawing = false, hasSig = false;
+
+  const pos = e => {
+    const r = cv.getBoundingClientRect();
+    const t = e.touches ? e.touches[0] : e;
+    return [(t.clientX - r.left) * (cv.width / r.width), (t.clientY - r.top) * (cv.height / r.height)];
+  };
+  const start = e => {
+    e.preventDefault();
+    drawing = true;
+    const [x, y] = pos(e);
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  };
+  const move = e => {
+    if (!drawing) return;
+    e.preventDefault();
+    const [x, y] = pos(e);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    hasSig = true;
+  };
+  const end = () => {
+    if (!drawing) return;
+    drawing = false;
+    if (hasSig) {
+      $("#r-sig-img").src = cv.toDataURL("image/png");
+      $("#r-sig-img").hidden = false;
+      $("#r-sig-empty").hidden = true;
+    }
+  };
+
+  cv.addEventListener("mousedown", start);
+  cv.addEventListener("mousemove", move);
+  addEventListener("mouseup", end);
+  cv.addEventListener("touchstart", start, { passive: false });
+  cv.addEventListener("touchmove", move, { passive: false });
+  cv.addEventListener("touchend", end);
+
+  $("#sig-clr").onclick = () => {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    hasSig = false;
+    $("#r-sig-img").hidden = true;
+    $("#r-sig-empty").hidden = false;
+  };
+
+  $("#save-pdf").onclick = () => {
+    if (!$("#nm").value.trim()) { $("#nm").focus(); return alert("Please enter your full name first."); }
+    if (!$("#decl-ok").checked) return alert("Please tick the declaration checkbox.");
+    print();
+  };
+
+  launchConfetti();
 }
 
 function launchConfetti() {
