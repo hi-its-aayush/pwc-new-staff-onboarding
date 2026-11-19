@@ -326,7 +326,7 @@ function renderLibraryHome(el) {
     <a class="card path-card featured" href="#training" style="margin:12px 0 0">
       <div class="pc-top"><span class="tag">Dedicated Training</span><span class="badge">${trDone}/${trTotal} completed</span></div>
       <h3>🍷 Training &amp; Upskilling (Wine Training)</h3>
-      <p>Opens the dedicated Training page with Tammy’s slide decks, knowledge checks, and your Training Certificate.</p>
+      <p>Opens the dedicated Training page with slide decks (slide deck will be uploaded shortly), knowledge checks, and your Training Certificate.</p>
       <div class="mini-bar"><i style="width:${trPct}%"></i></div>
       <span class="go-link">Go to Training page →</span>
     </a>`;
