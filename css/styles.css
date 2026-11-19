@@ -70,6 +70,8 @@ h2{font-weight:500;margin:28px 0 12px}
 .rail{position:sticky;top:76px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;max-height:calc(100vh - 96px);overflow:auto}
 .rail[hidden]{display:none}
 .rail-back{display:inline-block;font-size:13px;font-weight:600;color:var(--acc);text-decoration:none;margin-bottom:10px}
+.rail-feature{background:var(--bg);border:1px solid var(--y);font-weight:600;color:var(--ink)!important}
+.rail-feature:hover{background:var(--y)!important;color:#000!important}
 .rail .grp,.mobile-drawer .grp{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--mut);margin:14px 0 6px}
 .rail a:not(.rail-back),.mobile-drawer a{display:flex;gap:10px;align-items:center;padding:8px 10px;border-radius:10px;color:var(--ink);text-decoration:none;font-size:14px}
 .rail a:not(.rail-back):hover{background:var(--bg)}

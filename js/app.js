@@ -85,10 +85,9 @@ function renderOnboardingRail() {
 }
 
 function renderTrainingRail(activeGroup) {
-  const trLinks =
-    `<div class="grp">Wine Training</div>` +
-    T.map(m => `<a href="#${m.id}" class="${D[m.id] ? "done" : ""} ${cur === m.id ? "on" : ""}"><b></b><span>${m.t}</span></a>`).join("") +
-    `<a href="#training-certificate" class="${cur === "training-certificate" ? "on" : ""}"><b></b><span>Training Certificate</span></a>`;
+  const trLink =
+    `<div class="grp">Training</div>` +
+    `<a href="#training" class="rail-feature"><span>🍷 Training &amp; Upskilling →</span></a>`;
 
   const libGroupsHtml =
     `<div class="grp" style="margin-top:20px">Reference Library</div>` +
@@ -102,7 +101,15 @@ function renderTrainingRail(activeGroup) {
       </details>`;
     }).join("");
 
-  return trLinks + libGroupsHtml;
+  return trLink + libGroupsHtml;
+}
+
+function renderWineRail() {
+  return `<a class="rail-back" href="#library">← Back to Reference Library</a>` +
+    `<div class="grp">Wine Training</div>` +
+    T.map(m => `<a href="#${m.id}" class="${D[m.id] ? "done" : ""} ${cur === m.id ? "on" : ""}"><b></b><span>${m.t}</span></a>`).join("") +
+    `<div class="grp">Finish</div>` +
+    `<a href="#training-certificate" class="${cur === "training-certificate" ? "on" : ""}"><b></b><span>Training Certificate</span></a>`;
 }
 
 function renderHome(el) {
@@ -130,12 +137,12 @@ function renderHome(el) {
         <div class="mini-bar"><i style="width:${obPct}%"></i></div>
         <span class="go-link">${startCta}</span>
       </a>
-      <a class="card path-card" href="#${T[0].id}">
-        <div class="pc-top"><span class="tag">Existing staff</span><span class="badge">${trDone}/${trTotal} modules</span></div>
+      <a class="card path-card" href="#library">
+        <div class="pc-top"><span class="tag">Existing staff</span><span class="badge">${trDone}/${trTotal} training</span></div>
         <h3>Training &amp; Library</h3>
-        <p><b>Wine Training</b> slide decks and quizzes, plus the full operational <b>Reference Library</b> (Franke Mytico, catering, formal service &amp; checklists).</p>
+        <p>Browse the operational <b>Reference Library</b> (Franke Mytico, catering, formal service &amp; checklists) or jump into dedicated <b>Training</b> modules like Wine Training.</p>
         <div class="mini-bar"><i style="width:${trPct}%"></i></div>
-        <span class="go-link">Open Training &amp; Library →</span>
+        <span class="go-link">Open Reference Library →</span>
       </a>
     </div>
 
@@ -283,9 +290,78 @@ function renderOnboardingLesson(el, m) {
   };
 }
 
+function renderLibraryHome(el) {
+  setTopbar("training");
+  setRail(renderTrainingRail(null));
+  const trDone = cntTr(), trTotal = T.length, trPct = trTotal ? Math.round((trDone / trTotal) * 100) : 0;
+
+  el.innerHTML = `
+    <p class="eyebrow">Existing staff · Operational guides</p>
+    <h1>Reference Library</h1>
+    <p class="lead">Browse operational SOPs, equipment guides, and checklists on the left — or jump into dedicated skill training below.</p>
+
+    <a class="card path-card featured" href="#training" style="margin:20px 0 28px">
+      <div class="pc-top"><span class="tag">Dedicated Training</span><span class="badge">${trDone}/${trTotal} completed</span></div>
+      <h3>🍷 Training &amp; Upskilling (Wine Training)</h3>
+      <p>Opens the dedicated Training page with Tammy’s slide decks, knowledge checks, and your Training Certificate.</p>
+      <div class="mini-bar"><i style="width:${trPct}%"></i></div>
+      <span class="go-link">Go to Training page →</span>
+    </a>
+
+    <h2 class="sec-t">Library Categories</h2>
+    <div class="cat-grid">
+      ${LIB_GROUPS.map(grp => `
+        <a class="card topic-card" href="#${grp.items[0].id}">
+          <div class="tc-top"><span class="tc-num">${grp.items.length} topics</span></div>
+          <h3>${grp.name}</h3>
+          <span class="go-link">Open →</span>
+        </a>`).join("")}
+    </div>`;
+}
+
+function renderTrainingPage(el) {
+  setTopbar("training");
+  setRail(renderWineRail());
+  const done = cntTr(), total = T.length, pct = total ? Math.round((done / total) * 100) : 0;
+
+  el.innerHTML = `
+    <div class="hub-head">
+      <div>
+        <p class="eyebrow">Dedicated Training</p>
+        <h1>Training &amp; Upskilling</h1>
+        <p class="lead">Focused training tracks with interactive slide decks and quizzes.</p>
+      </div>
+      <div class="card stat-box">
+        <div class="stat-num">${pct}%</div>
+        <div class="stat-sub">${done} of ${total} completed</div>
+        <div class="mini-bar"><i style="width:${pct}%"></i></div>
+      </div>
+    </div>
+
+    <h2 class="sec-t">🍷 Wine Training</h2>
+    <div class="topic-grid">
+      ${T.map((m, idx) => `
+        <a class="card topic-card ${D[m.id] ? "is-done" : ""}" href="#${m.id}">
+          <div class="tc-top">
+            <span class="tc-num">Module ${idx + 1} · ${m.slides ? `${m.slides.length} slides` : "Lesson"}</span>
+            <span class="tc-state">${D[m.id] ? "✓ Learned" : (m.quiz ? "Quiz" : "Read")}</span>
+          </div>
+          <h3>${m.t}</h3>
+          <p>${m.intro || ""}</p>
+          <span class="go-link">${D[m.id] ? "Review →" : "Start →"}</span>
+        </a>`).join("")}
+      <a class="card topic-card cert-card" href="#training-certificate">
+        <div class="tc-top"><span class="tc-num">Finish</span><span class="tc-state">${done === total ? "Unlocked ✓" : "Locked"}</span></div>
+        <h3>Training Certificate</h3>
+        <p>Complete all ${total} Wine Training modules to unlock your certificate.</p>
+        <span class="go-link">Open certificate →</span>
+      </a>
+    </div>`;
+}
+
 function renderTrainingLesson(el, m, list, isWine) {
   setTopbar("training");
-  setRail(renderTrainingRail(isWine ? null : m.g));
+  setRail(isWine ? renderWineRail() : renderTrainingRail(m.g));
 
   const idx = list.findIndex(x => x.id === m.id);
   const prev = idx > 0 ? list[idx - 1] : null;
@@ -347,7 +423,7 @@ function renderTrainingLesson(el, m, list, isWine) {
 function renderCert(el, kind) {
   const isTr = kind === "tr";
   setTopbar(isTr ? "training" : "onboarding", isTr ? null : "Finish · Certificate");
-  setRail(isTr ? renderTrainingRail(null) : renderOnboardingRail());
+  setRail(isTr ? renderWineRail() : renderOnboardingRail());
 
   const done = isTr ? cntTr() : cntOb();
   const total = isTr ? T.length : CORE_MODULES.length;
@@ -375,6 +451,8 @@ function view() {
   const el = $("#main");
 
   if (cur === "welcome") return renderHome(el);
+  if (cur === "library") return renderLibraryHome(el);
+  if (cur === "training") return renderTrainingPage(el);
   if (cur === "certificate") return renderCert(el, "ob");
   if (cur === "training-certificate") return renderCert(el, "tr");
 
