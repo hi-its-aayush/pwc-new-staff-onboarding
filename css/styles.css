@@ -173,10 +173,48 @@ input[type=text]{width:100%;padding:10px 12px;border:1px solid var(--line);borde
 .cert h1{font-size:40px}
 
 /* Lightbox (Tap-to-Zoom) */
-.lb{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.88);display:grid;place-items:center;padding:24px}
+.lb{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.88);display:grid;place-items:center;padding:24px;animation:fadeIn .18s ease-out}
 .lb[hidden]{display:none}
-.lb img{max-width:95vw;max-height:90vh;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.lb img{max-width:95vw;max-height:90vh;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:lbZoom .24s cubic-bezier(.34,1.56,.64,1)}
 .lb-close{position:fixed;top:16px;right:16px;width:42px;height:42px;border-radius:50%;border:1px solid #444;background:#111;color:#fff;font-size:18px;padding:0;display:grid;place-items:center}
+
+/* Animations & macOS Dock-style spring zoom */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes lbZoom{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+
+main.anim-in{animation:pageIn .24s cubic-bezier(.22,1,.36,1)}
+
+.bento-2 .card,.bento-4 .card,.cat-grid .card,.topic-grid .card{
+  transition:transform .28s cubic-bezier(.34,1.56,.64,1),border-color .2s,box-shadow .25s,opacity .2s;
+  will-change:transform;
+}
+.bento-2:has(.card:hover) .card:not(:hover),
+.bento-4:has(.card:hover) .card:not(:hover),
+.cat-grid:has(.card:hover) .card:not(:hover),
+.topic-grid:has(.card:hover) .card:not(:hover){
+  transform:scale(.982);
+  opacity:.82;
+}
+.bento-2 .card:hover,.bento-4 .card:hover,.cat-grid .card:hover,.topic-grid .card:hover{
+  transform:scale(1.038) translateY(-4px);
+  border-color:var(--y);
+  box-shadow:0 14px 32px rgba(0,0,0,.12);
+  z-index:2;
+}
+
+button,.btn,.rail a:not(.rail-back){
+  transition:transform .2s cubic-bezier(.34,1.56,.64,1),background .15s,border-color .15s,color .15s;
+}
+button:not(:disabled):hover,.btn:hover{transform:scale(1.03)}
+.rail a:not(.rail-back):hover{transform:translateX(3px) scale(1.02)}
+
+.confetti-cv{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:120}
+
+@media(prefers-reduced-motion:reduce){
+  main.anim-in,.lb,.lb img{animation:none!important}
+  .bento-2 .card,.bento-4 .card,.cat-grid .card,.topic-grid .card,button,.btn,.rail a{transition:none!important;transform:none!important}
+}
 
 /* Mobile Drawer */
 #scrim,.mobile-drawer{display:none}

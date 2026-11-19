@@ -461,6 +461,50 @@ function renderCert(el, kind) {
       save();
     };
   }
+  if (ready) launchConfetti();
+}
+
+function launchConfetti() {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const cv = document.createElement("canvas");
+  cv.className = "confetti-cv";
+  cv.width = innerWidth;
+  cv.height = innerHeight;
+  document.body.appendChild(cv);
+  const ctx = cv.getContext("2d");
+  const colors = ["#f5dd3f", "#111111", "#ffffff", "#2f7a45", "#c99d78"];
+  const pieces = Array.from({ length: 90 }, () => ({
+    x: cv.width * (0.2 + Math.random() * 0.6),
+    y: cv.height * 0.25,
+    vx: (Math.random() - 0.5) * 11,
+    vy: -Math.random() * 10 - 3,
+    w: 6 + Math.random() * 6,
+    h: 4 + Math.random() * 5,
+    rot: Math.random() * Math.PI * 2,
+    vr: (Math.random() - 0.5) * 0.25,
+    c: colors[Math.floor(Math.random() * colors.length)]
+  }));
+  let frame = 0;
+  function tick() {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    pieces.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.28;
+      p.rot += p.vr;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.globalAlpha = Math.max(0, 1 - frame / 130);
+      ctx.fillStyle = p.c;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    });
+    frame++;
+    if (frame < 130) requestAnimationFrame(tick);
+    else cv.remove();
+  }
+  requestAnimationFrame(tick);
 }
 
 let cur = "welcome";
@@ -468,6 +512,9 @@ let cur = "welcome";
 function view() {
   cur = location.hash.slice(1) || "welcome";
   const el = $("#main");
+  el.classList.remove("anim-in");
+  void el.offsetWidth;
+  el.classList.add("anim-in");
 
   if (cur === "welcome") return renderHome(el);
   if (cur === "library") return renderLibraryHome(el);
