@@ -33,10 +33,15 @@ h2{font-weight:500;margin:28px 0 12px}
 .logo span{color:var(--y)}
 .tb-mid{flex:1;display:flex;align-items:center;min-width:0}
 .tb-tag{font-size:13px;color:#b8b5ae;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tb-prog{display:flex;align-items:center;gap:12px;width:min(320px,100%)}
+.tb-prog{display:flex;align-items:center;gap:12px;width:min(400px,100%)}
 .tb-label{font-size:13px;font-weight:600;color:var(--y);white-space:nowrap}
 .tb-bar{flex:1;height:6px;background:#333;border-radius:99px;overflow:hidden}
 .tb-bar i{display:block;height:100%;background:var(--y);transition:width .3s}
+.tb-reset{padding:4px 9px;border-radius:8px;border:1px solid #333;background:#141414;color:#ccc;font-size:12px;font-weight:600;white-space:nowrap}
+.tb-reset:hover{border-color:var(--y);color:var(--y)}
+.stat-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.mini-reset{padding:4px 9px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--mut);font-size:12px;font-weight:600}
+.mini-reset:hover{border-color:var(--acc);color:var(--ink)}
 .exit-link{color:#ddd;text-decoration:none;font-size:13px;font-weight:600;padding:6px 10px;border-radius:8px;border:1px solid #333;white-space:nowrap}
 .exit-link:hover{border-color:var(--y);color:var(--y)}
 .drawer-head{padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid #2b2b2b}

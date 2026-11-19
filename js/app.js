@@ -55,7 +55,10 @@ function setTopbar(mode, stepInfo) {
       <div class="tb-prog">
         <span class="tb-label">${stepInfo || `Day 1 Onboarding · ${done}/${total}`}</span>
         <div class="tb-bar"><i style="width:${pct}%"></i></div>
+        ${done ? `<button type="button" class="tb-reset" id="reset-ob" title="Reset Day 1 progress">↺ Reset</button>` : ""}
       </div>`;
+    const rb = $("#reset-ob");
+    if (rb) rb.onclick = () => resetProgress("ob");
   } else {
     sw.hidden = false;
     mid.innerHTML = `<span class="tb-tag">Training &amp; Reference Library</span>`;
@@ -84,24 +87,35 @@ function renderOnboardingRail() {
     `<div class="grp">Finish</div><a href="#certificate" class="${cur === "certificate" ? "on" : ""}"><b></b><span>Day 1 Certificate</span></a>`;
 }
 
-function renderTrainingRail(activeGroup) {
-  const trLink =
-    `<div class="grp">Training</div>` +
-    `<a href="#training" class="rail-feature"><span>🍷 Training &amp; Upskilling →</span></a>`;
+function resetProgress(scope) {
+  const label = scope === "tr" ? "Training & Upskilling" : "Day 1 Onboarding";
+  if (!confirm(`Reset all ${label} progress?`)) return;
+  const list = scope === "tr" ? T : CORE_MODULES;
+  list.forEach(m => { delete D[m.id]; });
+  save();
+  if (scope === "ob" && cur === "certificate") location.hash = `#${CORE_MODULES[0].id}`;
+  else if (scope === "tr" && cur === "training-certificate") location.hash = "#training";
+  else view();
+}
 
+function renderTrainingRail(activeGroup) {
   const libGroupsHtml =
-    `<div class="grp" style="margin-top:20px">Reference Library</div>` +
+    `<div class="grp">Reference Library</div>` +
     LIB_GROUPS.map(grp => {
       const isOpen = grp.name === activeGroup ? "open" : "";
       return `<details class="rail-det" ${isOpen}>
-        <summary>${grp.name} <span class="cnt">${grp.items.length}</span></summary>
+        <summary>${grp.name}</summary>
         <div class="det-links">
           ${grp.items.map(m => `<a href="#${m.id}" class="${D[m.id] ? "done" : ""} ${cur === m.id ? "on" : ""}"><b></b><span>${m.t}</span></a>`).join("")}
         </div>
       </details>`;
     }).join("");
 
-  return trLink + libGroupsHtml;
+  const trLink =
+    `<div class="grp" style="margin-top:20px">Training</div>` +
+    `<a href="#training" class="rail-feature"><span>🍷 Training &amp; Upskilling →</span></a>`;
+
+  return libGroupsHtml + trLink;
 }
 
 function renderWineRail() {
@@ -298,25 +312,24 @@ function renderLibraryHome(el) {
   el.innerHTML = `
     <p class="eyebrow">Existing staff · Operational guides</p>
     <h1>Reference Library</h1>
-    <p class="lead">Browse operational SOPs, equipment guides, and checklists on the left — or jump into dedicated skill training below.</p>
+    <p class="lead">Browse operational SOPs, equipment guides, and checklists — or scroll down for dedicated skill training.</p>
 
-    <a class="card path-card featured" href="#training" style="margin:20px 0 28px">
+    <div class="cat-grid">
+      ${LIB_GROUPS.map(grp => `
+        <a class="card topic-card" href="#${grp.items[0].id}">
+          <h3>${grp.name}</h3>
+          <span class="go-link">Open →</span>
+        </a>`).join("")}
+    </div>
+
+    <h2 class="sec-t">Training &amp; Upskilling</h2>
+    <a class="card path-card featured" href="#training" style="margin:12px 0 0">
       <div class="pc-top"><span class="tag">Dedicated Training</span><span class="badge">${trDone}/${trTotal} completed</span></div>
       <h3>🍷 Training &amp; Upskilling (Wine Training)</h3>
       <p>Opens the dedicated Training page with Tammy’s slide decks, knowledge checks, and your Training Certificate.</p>
       <div class="mini-bar"><i style="width:${trPct}%"></i></div>
       <span class="go-link">Go to Training page →</span>
-    </a>
-
-    <h2 class="sec-t">Library Categories</h2>
-    <div class="cat-grid">
-      ${LIB_GROUPS.map(grp => `
-        <a class="card topic-card" href="#${grp.items[0].id}">
-          <div class="tc-top"><span class="tc-num">${grp.items.length} topics</span></div>
-          <h3>${grp.name}</h3>
-          <span class="go-link">Open →</span>
-        </a>`).join("")}
-    </div>`;
+    </a>`;
 }
 
 function renderTrainingPage(el) {
@@ -332,7 +345,10 @@ function renderTrainingPage(el) {
         <p class="lead">Focused training tracks with interactive slide decks and quizzes.</p>
       </div>
       <div class="card stat-box">
-        <div class="stat-num">${pct}%</div>
+        <div class="stat-top">
+          <div class="stat-num">${pct}%</div>
+          ${done ? `<button type="button" class="mini-reset" id="reset-tr" title="Reset training progress">↺ Reset</button>` : ""}
+        </div>
         <div class="stat-sub">${done} of ${total} completed</div>
         <div class="mini-bar"><i style="width:${pct}%"></i></div>
       </div>
@@ -357,6 +373,9 @@ function renderTrainingPage(el) {
         <span class="go-link">Open certificate →</span>
       </a>
     </div>`;
+
+  const rt = $("#reset-tr");
+  if (rt) rt.onclick = () => resetProgress("tr");
 }
 
 function renderTrainingLesson(el, m, list, isWine) {
