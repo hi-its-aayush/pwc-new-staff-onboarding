@@ -1,3 +1,16 @@
+/**
+ * Dedicated Training & Upskilling modules (T)
+ * -------------------------------------------
+ * Used by the separate Training section (#training, #w1, ..., #training-certificate).
+ * Each module object supports:
+ *   - id:     Unique hash route (e.g. "w1")
+ *   - track:  Track name (e.g. "Wine Training")
+ *   - g:      Sidebar/eyebrow group label
+ *   - t:      Module title
+ *   - intro:  Short lead summary shown under the title
+ *   - slides: Optional array of { title, img?, body?, note? } for the interactive slide deck
+ *   - quiz:   Optional array of { q, o: [options], a: correctIndex } gating completion
+ */
 const T=[
 {"id": "w1", "track": "Wine Training", "g": "Wine Training", "t": "1 · Wine fundamentals & varietals", "intro": "Core grape varietals, flavour profiles, and how to describe wines confidently to PwC guests.", "slides": [
   {"title": "Welcome to Wine Training", "body": "<p>Slide deck will be uploaded shortly. Use the arrows below (or your keyboard ← / → keys) to step through the starter slides.</p><ul><li>Covers core red, white, and sparkling varietals</li><li>Builds confidence when recommending or pouring for clients</li><li>Includes a quick knowledge check at the end</li></ul>", "note": "Slide deck will be uploaded shortly."},

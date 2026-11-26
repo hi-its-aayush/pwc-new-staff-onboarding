@@ -1,4 +1,17 @@
+/**
+ * Gastronomy Onboarding & Training Portal — Core Application
+ * --------------------------------------------------------
+ * Static hash-routed SPA with three isolated experiences:
+ *   1. Landing / Introduction (#welcome)
+ *   2. Guided Day 1 Onboarding (#m0 -> ... -> #certificate)
+ *   3. Reference Library & Dedicated Training (#library, #training, #w1 -> #training-certificate)
+ *
+ * State is persisted in browser localStorage (no backend required).
+ */
+
 const $ = s => document.querySelector(s);
+
+// Persisted learner state: completion map `D` ({ [moduleId]: 1 }) and learner name `N`
 let D = {}, N = "", slideIdx = 0;
 try {
   D = JSON.parse(localStorage.getItem("ob-done") || "{}");
@@ -12,10 +25,13 @@ const save = () => {
   } catch (e) {}
 };
 
+// Partition modules into Day 1 Onboarding (CORE_MODULES), Reference Library (LIB_MODULES),
+// and combined search pool for existing staff (TRAINING_ALL)
 const CORE_MODULES = M.filter(m => m.core && m.id !== "welcome");
 const LIB_MODULES = M.filter(m => !m.core);
 const TRAINING_ALL = [...T, ...LIB_MODULES];
 
+// Group Reference Library modules by their `g` category in original display order
 const LIB_GROUPS = [];
 const LIB_MAP = {};
 LIB_MODULES.forEach(m => {
@@ -26,9 +42,12 @@ LIB_MODULES.forEach(m => {
   LIB_MAP[m.g].items.push(m);
 });
 
+// Progress helpers
 const cntOb = () => CORE_MODULES.filter(m => D[m.id]).length;
 const cntTr = () => T.filter(m => D[m.id]).length;
 const nextObId = () => (CORE_MODULES.find(m => !D[m.id]) || CORE_MODULES[0]).id;
+
+/** Updates the sticky top bar for "landing", "onboarding", or "training" mode. */
 
 function setTopbar(mode, stepInfo) {
   const mid = $("#tb-mid");
@@ -65,6 +84,7 @@ function setTopbar(mode, stepInfo) {
   }
 }
 
+/** Populates both the desktop side rail (#rail) and mobile drawer (#drawer-rail). */
 function setRail(html) {
   const rail = $("#rail");
   const dRail = $("#drawer-rail");
@@ -87,6 +107,7 @@ function renderOnboardingRail() {
     `<div class="grp">Finish</div><a href="#certificate" class="${cur === "certificate" ? "on" : ""}"><b></b><span>Day 1 Certificate</span></a>`;
 }
 
+/** Clears completion state for either Day 1 Onboarding ("ob") or Training ("tr"). */
 function resetProgress(scope) {
   const label = scope === "tr" ? "Training & Upskilling" : "Day 1 Onboarding";
   if (!confirm(`Reset all ${label} progress?`)) return;
@@ -126,6 +147,7 @@ function renderWineRail() {
     `<a href="#training-certificate" class="${cur === "training-certificate" ? "on" : ""}"><b></b><span>Training Certificate</span></a>`;
 }
 
+/** Renders the Landing / Introduction page (#welcome) with the two entry paths. */
 function renderHome(el) {
   setTopbar("landing");
   setRail(null);
@@ -177,6 +199,7 @@ function renderHome(el) {
     </div>`;
 }
 
+/** Builds the interactive slide deck HTML container for modules with `m.slides`. */
 function renderSlides(slides) {
   if (!slides || !slides.length) return "";
   return `
@@ -219,6 +242,7 @@ function bindSlides(slides) {
   show(0);
 }
 
+/** Strips empty headings and removes borders from image-only Word-converted tables. */
 function cleanLegacyProse(root) {
   root.querySelectorAll(".prose h1, .prose h2").forEach(h => {
     if (!h.textContent.trim()) h.remove();
@@ -232,6 +256,7 @@ function cleanLegacyProse(root) {
   });
 }
 
+/** Attaches click-to-zoom lightbox handlers to all images within `scope`. */
 function bindZoom(scope = "#main") {
   document.querySelectorAll(`${scope} .prose img, ${scope} img.zoomable`).forEach(img => {
     img.classList.add("zoomable");
@@ -243,6 +268,7 @@ function bindZoom(scope = "#main") {
   });
 }
 
+/** Renders a single Day 1 Onboarding step with linear "Complete & Continue" flow. */
 function renderOnboardingLesson(el, m) {
   const idx = CORE_MODULES.findIndex(x => x.id === m.id);
   const prev = idx > 0 ? CORE_MODULES[idx - 1] : null;
@@ -304,6 +330,7 @@ function renderOnboardingLesson(el, m) {
   };
 }
 
+/** Renders the Reference Library landing view (#library) with Training link at bottom. */
 function renderLibraryHome(el) {
   setTopbar("training");
   setRail(renderTrainingRail(null));
@@ -332,6 +359,7 @@ function renderLibraryHome(el) {
     </a>`;
 }
 
+/** Renders the dedicated Training & Upskilling page (#training). */
 function renderTrainingPage(el) {
   setTopbar("training");
   setRail(renderWineRail());
@@ -378,6 +406,7 @@ function renderTrainingPage(el) {
   if (rt) rt.onclick = () => resetProgress("tr");
 }
 
+/** Renders a Training or Reference Library module (`isWine` switches rail to Wine Training). */
 function renderTrainingLesson(el, m, list, isWine) {
   setTopbar("training");
   setRail(isWine ? renderWineRail() : renderTrainingRail(m.g));
@@ -445,6 +474,10 @@ try {
   START_DT = localStorage.getItem("ob-start") || new Date().toISOString().slice(0, 10);
 } catch (e) {}
 
+/**
+ * Renders the formal Staff Completion Record (#certificate or #training-certificate)
+ * with live form fields, HTML5 signature canvas, module checklist table, and PDF print layout.
+ */
 function renderCert(el, kind) {
   const isTr = kind === "tr";
   setTopbar(isTr ? "training" : "onboarding", isTr ? null : "Finish · Certificate");
@@ -632,6 +665,7 @@ function renderCert(el, kind) {
   launchConfetti();
 }
 
+/** Plays a brief Gastronomy-themed confetti burst when a completion record is unlocked. */
 function launchConfetti() {
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const cv = document.createElement("canvas");
@@ -677,6 +711,7 @@ function launchConfetti() {
 
 let cur = "welcome";
 
+/** Hash router: resolves `location.hash` to Landing, Onboarding, Library, Training, or Record. */
 function view() {
   cur = location.hash.slice(1) || "welcome";
   const el = $("#main");

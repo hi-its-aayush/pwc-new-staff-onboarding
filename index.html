@@ -8,11 +8,13 @@
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+  <!-- Sticky top bar: dynamically adapts between Landing, Day 1 Onboarding, and Training & Library modes -->
   <header class="topbar noprint">
     <div class="tb-in">
       <a class="logo" href="#welcome"><span>g</span>astronomy</a>
       <div class="tb-mid" id="tb-mid"></div>
       <div class="tb-right">
+        <!-- Search is shown only in Training & Reference Library mode -->
         <div class="search-wrap" id="search-wrap" hidden>
           <input type="search" id="s" placeholder="Search training &amp; SOPs…" aria-label="Search training">
           <div class="search-pop" id="s-pop" hidden></div>
@@ -24,6 +26,7 @@
     </div>
   </header>
 
+  <!-- Mobile slide-out navigation drawer (populated dynamically from #rail) -->
   <div id="scrim"></div>
   <div class="mobile-drawer noprint" id="drawer">
     <div class="drawer-head">
@@ -32,16 +35,19 @@
     <div id="drawer-rail"></div>
   </div>
 
+  <!-- Main layout shell: optional left track rail + primary content container -->
   <div class="shell" id="shell">
     <aside class="rail noprint" id="rail" hidden></aside>
     <main id="main"></main>
   </div>
 
+  <!-- Fullscreen tap-to-zoom lightbox for lesson images and training slides -->
   <div id="lightbox" class="lb" hidden>
     <button type="button" id="lb-close" class="lb-close" aria-label="Close image">✕</button>
     <img id="lb-img" alt="">
   </div>
 
+  <!-- Load order matters: data arrays (M, T) must be defined before app.js -->
   <script src="js/modules.js"></script>
   <script src="js/training.js"></script>
   <script src="js/app.js"></script>
