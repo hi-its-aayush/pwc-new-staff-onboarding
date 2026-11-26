@@ -170,7 +170,7 @@ function renderHome(el) {
 
     <h2 class="sec-t">Meet the team</h2>
     <div class="bento-4">
-      <div class="card person"><span class="av">TM</span><h3>Tammy McGregor</h3><p class="role">Site Manager</p><p>Leads the Gastronomy team on site.</p></div>
+      <div class="card person"><span class="av">TM</span><h3>Tammy McGregor</h3><p class="role">Food and Beverage Manager</p><p>Leads the Gastronomy team on site.</p></div>
       <div class="card person"><span class="av">AA</span><h3>Aayush Acharya</h3><p class="role">Supervisor</p><p>Supports the team on shift.</p></div>
       <div class="card person"><span class="av">AV</span><h3>Andrew Vongratsavai</h3><p class="role">Supervisor</p><p>Supports the team on shift.</p></div>
       <div class="card person"><span class="av">WY</span><h3>Wendy Yang</h3><p class="role">Supervisor</p><p>Supports the team on shift.</p></div>
